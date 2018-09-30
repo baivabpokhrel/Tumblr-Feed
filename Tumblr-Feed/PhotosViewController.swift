@@ -2,7 +2,7 @@
 //  PhotosViewController.swift
 //  Tumblr-Feed
 //
-//  Created by Binod Pokhrel on 9/30/18.
+//  Created by Baivab Pokhrel on 9/30/18.
 //  Copyright © 2018 Baivab Pokhrel. All rights reserved.
 //
 
@@ -15,14 +15,24 @@ class PhotosViewController: UIViewController, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     
     var posts: [[String: Any]] = []
+    var refreshControl : UIRefreshControl!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh(_:)), for: .valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
+        
         fetchPhotos()
         tableView.dataSource=self
         tableView.rowHeight = 229
         
         // Do any additional setup after loading the view.
+    }
+    @objc func didPullToRefresh(_ refreshControl: UIRefreshControl){
+        
+        fetchPhotos()
     }
     
     func fetchPhotos(){
@@ -37,9 +47,10 @@ class PhotosViewController: UIViewController, UITableViewDataSource {
                let responseDictionary = dataDictionary["response"] as! [String: Any]
                 self.posts = responseDictionary["posts"] as! [[String: Any]]
                 
-                // TODO: Get the posts and store in posts property
+                
                 self.tableView.reloadData()
-                // TODO: Reload the table view
+                self.refreshControl.endRefreshing()
+               
             }
         }
         task.resume()
